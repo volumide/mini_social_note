@@ -2,7 +2,7 @@ import Favorite from "../models/favorite.model.js"
 import Note from "../models/note.model.js"
 import User from "../models/user.model.js"
 import { decodeToken } from "../utils/middleware.js"
-import { NOT_FOUND, NO_CONTENT, SERVER_ERROR, SUCCESS } from "../utils/status-codes.js"
+import { FORBIDDEN, NOT_FOUND, NO_CONTENT, SERVER_ERROR, SUCCESS } from "../utils/status-codes.js"
 
 Note.belongsTo(User, { foreignKey: "user_id", targetKey: "id", as: "owner" })
 
@@ -48,10 +48,20 @@ export const favoriteNote = async (req, res) => {
   const { id: user_id } = decodeToken(req)
   const noteId = req.body.note_id
   try {
-    await Favorite.create({
-      user_id,
-      note_id: noteId
+    const checkUserHasFavorite = await Favorite.findOne({
+      where: {
+        note_id: noteId,
+        user_id: user_id
+      }
     })
+
+    if (checkUserHasFavorite) {
+      return res.status(FORBIDDEN).json({
+        status: FORBIDDEN,
+        message: "not allowed"
+      })
+    }
+
     const note = await Note.findByPk(noteId)
     if (!note) {
       return res.status(NOT_FOUND).json({
@@ -60,12 +70,17 @@ export const favoriteNote = async (req, res) => {
       })
     }
 
-    const totalLikes = note.like + 1
-    Note.update({ like: totalLikes }, { where: { id: noteId } })
+    await Favorite.create({
+      user_id,
+      note_id: noteId
+    })
+
+    const totalLikes = parseInt(note.likes) + 1
+    await Note.update({ likes: totalLikes }, { where: { id: noteId } })
 
     return res.status(SUCCESS).json({
       status: SUCCESS,
-      message: "favorite"
+      message: "success"
     })
   } catch (error) {
     return res.status(SERVER_ERROR).json({
