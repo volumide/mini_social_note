@@ -16,7 +16,7 @@ const routes = (app) => {
   app.post("/note/create", authorize, createNote)
   app.delete("/note/delete/:id", authorize, deleteNote)
   app.post("/note/favorite", authorize, favoriteNote)
-  app.post("/note/favorite/remove", authorize, unFavoriteNote)
+  app.put("/note/favorite/remove", authorize, unFavoriteNote)
   app.post("/note/all/", authorize, getNotes)
   app.post("/note/user/", authorize, getMyNotes)
 }

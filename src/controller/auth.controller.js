@@ -158,7 +158,7 @@ export const unfollow = async (req, res) => {
   const { id } = decodeToken(req)
   try {
     const findUser = await User.findByPk(req.body.user_id)
-    if (!find) {
+    if (!findUser) {
       return res.status(NOT_FOUND).json({
         status: NOT_FOUND,
         message: "user not found"
@@ -166,9 +166,7 @@ export const unfollow = async (req, res) => {
     }
 
     const allFollowers = parseInt(findUser.followers)
-    await User.update({
-      followers: (allFollowers - 1).toString()
-    })
+    await User.update({ followers: allFollowers - 1 }, { where: { id: findUser.id } })
 
     await Followers.destroy({
       where: {
@@ -182,9 +180,11 @@ export const unfollow = async (req, res) => {
       message: "success"
     })
   } catch (error) {
+    console.log(error)
     return res.status(SERVER_ERROR).json({
       status: SERVER_ERROR,
-      message: "server error"
+      message: "server error",
+      error
     })
   }
 }
