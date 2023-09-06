@@ -2,7 +2,6 @@ import { Model, DataTypes } from "sequelize"
 import sequelize from "../utils/connection.js"
 import { hash } from "bcrypt"
 
-const salt = 12
 class Note extends Model {}
 
 Note.init(
