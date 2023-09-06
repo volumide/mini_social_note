@@ -1,6 +1,6 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../utils/connection.js"
-import bcrypt, { hash } from "bcrypt"
+import { hash } from "bcrypt"
 
 const salt = 12
 class User extends Model {}
