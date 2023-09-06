@@ -4,7 +4,8 @@ import { SERVER_ERROR, CREATED, BAD_REQUEST, SUCCESS } from "../utils/status-cod
 import { accessToken, decodeToken } from "../utils/middleware.js"
 import Followers from "../models/follows.model.js"
 
-Followers.belongsTo(User, { foreignKey: "follower_id", targetKey: "id", as: "followers" })
+// User.hasMany(Followers, { foreignKey: "follower_id", sourceKey: "id" })
+Followers.belongsTo(User, { foreignKey: "follower_id", targetKey: "id", as: "follower" })
 
 export const signup = async (req, res) => {
   try {
@@ -122,28 +123,35 @@ export const updatePassword = async (req, res) => {
 
 export const follow = async (req, res) => {
   const { id } = decodeToken(req)
-  const findUser = await User.findByPk(req.body.user_id)
-  if (!find) {
-    return res.status(NOT_FOUND).json({
-      status: NOT_FOUND,
-      message: "user not found"
+  try {
+    const findUser = await User.findByPk(req.body.user_id)
+    if (!findUser) {
+      return res.status(NOT_FOUND).json({
+        status: NOT_FOUND,
+        message: "user not found"
+      })
+    }
+
+    const allFollowers = findUser.followers
+
+    await User.update({ followers: allFollowers + 1 }, { where: { id: req.body.user_id } })
+
+    await Followers.create({
+      follower_id: id,
+      user_id: req.body.user_id
+    })
+
+    return res.status(SUCCESS).json({
+      status: SUCCESS,
+      message: "success"
+    })
+  } catch (error) {
+    return res.status(SERVER_ERROR).json({
+      status: SERVER_ERROR,
+      message: "server error",
+      error: error
     })
   }
-
-  const allFollowers = parseInt(findUser.followers)
-  await User.update({
-    followers: (allFollowers + 1).toString()
-  })
-
-  await Followers.create({
-    follower_id: id,
-    user_id: req.body.user_id
-  })
-
-  return res.status(SUCCESS).json({
-    status: SUCCESS,
-    message: "success"
-  })
 }
 
 export const unfollow = async (req, res) => {
@@ -184,17 +192,18 @@ export const unfollow = async (req, res) => {
 export const followers = async (req, res) => {
   try {
     const { id } = decodeToken(req)
-    const followers = Followers.findAll({
+    console.log(id)
+    // return
+    const followers = await Followers.findAll({
       where: {
         user_id: id
       },
       include: {
         model: User,
-        as: "followers",
+        as: "follower",
         attributes: ["id", "first_name", "last_name"]
       }
     })
-
     return res.status(SUCCESS).json({
       status: SUCCESS,
       body: followers
@@ -202,7 +211,8 @@ export const followers = async (req, res) => {
   } catch (error) {
     return res.status(SERVER_ERROR).json({
       status: SERVER_ERROR,
-      message: "server error"
+      message: "server error",
+      error
     })
   }
 }

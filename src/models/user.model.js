@@ -10,6 +10,7 @@ User.init(
     id: { type: DataTypes.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
     first_name: { type: DataTypes.STRING, allowNull: false },
     last_name: { type: DataTypes.STRING, allowNull: false },
+    followers: { type: DataTypes.INTEGER, allowNull: true, defaultValue: 0 },
     phone: {
       type: DataTypes.STRING,
       allowNull: false,
