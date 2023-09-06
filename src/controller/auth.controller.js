@@ -4,6 +4,8 @@ import { SERVER_ERROR, CREATED, BAD_REQUEST, SUCCESS } from "../utils/status-cod
 import { accessToken, decodeToken } from "../utils/middleware.js"
 import Followers from "../models/follows.model.js"
 
+Followers.belongsTo(User, { foreignKey: "follower_id", targetKey: "id", as: "followers" })
+
 export const signup = async (req, res) => {
   try {
     const { email, password, first_name, last_name, phone } = req.body
@@ -175,4 +177,27 @@ export const unfollow = async (req, res) => {
   }
 }
 
-export const followers = async (req, res) => {}
+export const followers = async (req, res) => {
+  try {
+    const { id } = decodeToken(req)
+    const followers = Followers.findAll({
+      where: {
+        user_id: id
+      },
+      include: {
+        model: Followers,
+        attributes: ["id", "first_name", "last_name"]
+      }
+    })
+
+    return res.status(SUCCESS).json({
+      status: SUCCESS,
+      body: followers
+    })
+  } catch (error) {
+    return res.status(SERVER_ERROR).json({
+      status: SERVER_ERROR,
+      message: "server error"
+    })
+  }
+}
