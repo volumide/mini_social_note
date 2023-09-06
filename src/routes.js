@@ -8,17 +8,17 @@ const routes = (app) => {
   app.post("/signin", login)
   app.put("/update/profile", authorize, updateProfile)
   app.put("/update/password", authorize, updatePassword)
-  app.post("/followers", authorize, followers)
+  app.get("/followers", authorize, followers)
   app.post("/follow", authorize, follow)
   app.put("/unfollow", authorize, unfollow)
 
   //   note route
-  app.post("note/create", authorize, createNote)
-  app.delete("note/delete/:id", authorize, deleteNote)
-  app.post("note/favorite", authorize, favoriteNote)
-  app.post("note/favorite/remove", authorize, unFavoriteNote)
-  app.post("note/all/", authorize, getNotes)
-  app.post("note/user/", authorize, getMyNotes)
+  app.post("/note/create", authorize, createNote)
+  app.delete("/note/delete/:id", authorize, deleteNote)
+  app.post("/note/favorite", authorize, favoriteNote)
+  app.post("/note/favorite/remove", authorize, unFavoriteNote)
+  app.post("/note/all/", authorize, getNotes)
+  app.post("/note/user/", authorize, getMyNotes)
 }
 
 export default routes

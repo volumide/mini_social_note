@@ -14,8 +14,8 @@ Note.init(
         max: 255
       }
     },
-    visibility: { type: DataTypes.BOOLEAN, allowNull: true, defaultValue: true },
-    like: { type: DataTypes.INTEGER, defaultValue: 0 }
+    visibility: { type: DataTypes.STRING, allowNull: true, defaultValue: true },
+    likes: { type: DataTypes.INTEGER, defaultValue: 0 }
   },
   { sequelize, tableName: "notes", paranoid: true }
 )

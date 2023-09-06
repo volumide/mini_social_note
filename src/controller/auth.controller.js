@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt"
-import User from "../models/user.model.js"
+import User, { salt } from "../models/user.model.js"
 import { SERVER_ERROR, CREATED, BAD_REQUEST, SUCCESS } from "../utils/status-codes.js"
 import { accessToken, decodeToken } from "../utils/middleware.js"
 import Followers from "../models/follows.model.js"
@@ -21,9 +21,11 @@ export const signup = async (req, res) => {
       message: "sign up success"
     })
   } catch (error) {
+    console.log(error)
     return res.status(SERVER_ERROR).json({
       status: SERVER_ERROR,
-      message: "server error"
+      message: "server error",
+      error: error.errors[0].message
     })
   }
 }
@@ -69,39 +71,41 @@ export const login = async (req, res) => {
 }
 
 export const updateProfile = async (req, res) => {
-  const { id } = decodeToken(req)
+  const token = decodeToken(req)
   try {
     const { password, createdAt, deletedAt, updatedAt, ...data } = req.body
-
-    const up = await User.update(data, { where: { user_id: id } })
+    await User.update(data, { where: { id: token.id } })
     return res.status(SUCCESS).json({
       status: SUCCESS,
-      message: "profile updated"
+      message: "profile updated",
+      body: await User.findByPk(token.id, { attributes: { exclude: ["password", "deletedAt"] } })
     })
   } catch (error) {
+    console.log(error)
     return res.status(SERVER_ERROR).json({
       status: SERVER_ERROR,
-      message: "server error"
+      message: "server error",
+      error: error.errors
     })
   }
 }
 
 export const updatePassword = async (req, res) => {
   const { password, newPassword } = req.body
+  // console.log(password, newPassword)
   const { id } = decodeToken(req)
 
   try {
     const user = await User.findByPk(id)
-    const comparePassword = compare(password, user.dataValues.password)
-
+    const comparePassword = await compare(password, user.dataValues.password)
     if (!comparePassword) {
       return res.status(BAD_REQUEST).json({
         status: BAD_REQUEST,
         message: "incorrect password"
       })
     }
-
-    await User.update({ password: hash(newPassword) }, { where: { id: id } })
+    const psWrd = await hash(newPassword.toString(), salt)
+    await User.update({ password: psWrd }, { where: { id: id } })
 
     return res.status(SUCCESS).json({
       status: SUCCESS,
@@ -110,7 +114,8 @@ export const updatePassword = async (req, res) => {
   } catch (error) {
     return res.status(SERVER_ERROR).json({
       status: SERVER_ERROR,
-      message: "server error"
+      message: "server error",
+      error: error
     })
   }
 }

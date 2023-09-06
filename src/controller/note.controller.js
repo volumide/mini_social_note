@@ -1,8 +1,8 @@
-import Favorite from "../models/favorite.model"
+import Favorite from "../models/favorite.model.js"
 import Note from "../models/note.model.js"
 import User from "../models/user.model.js"
 import { decodeToken } from "../utils/middleware.js"
-import { NOT_FOUND, NO_CONTENT, SERVER_ERROR, SUCCESS } from "../utils/status-codes"
+import { NOT_FOUND, NO_CONTENT, SERVER_ERROR, SUCCESS } from "../utils/status-codes.js"
 
 Note.belongsTo(User, { foreignKey: "user_id", targetKey: "id", as: "owner" })
 
@@ -10,10 +10,15 @@ export const createNote = async (req, res) => {
   const { id: user_id } = decodeToken(req)
   try {
     const note = await Note.create({ note: req.body.note, user_id })
+    return res.status(SUCCESS).json({
+      status: SUCCESS,
+      message: "note saved"
+    })
   } catch (error) {
     return res.status(SERVER_ERROR).json({
       status: SERVER_ERROR,
-      message: "server error"
+      message: "server error",
+      error: error
     })
   }
 }
@@ -125,8 +130,8 @@ export const getMyNotes = async (req, res) => {
       }
     })
 
-    return res.status(NO_CONTENT).json({
-      status: NO_CONTENT,
+    return res.status(SUCCESS).json({
+      status: SUCCESS,
       body: myNotes,
       message: ""
     })
@@ -141,13 +146,19 @@ export const getMyNotes = async (req, res) => {
 export const getNotes = async (req, res) => {
   const { id: user_id } = decodeToken(req)
   try {
-    await Note.findAll({
+    const allNotes = await Note.findAll({
       attributes: {},
       include: {
         model: User,
         as: "owner",
         attributes: ["id", "first_name", "last_name"]
       }
+    })
+
+    return res.status(SUCCESS).json({
+      status: SUCCESS,
+      body: allNotes,
+      message: ""
     })
   } catch (error) {
     return res.status(SERVER_ERROR).json({

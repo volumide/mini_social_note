@@ -2,7 +2,7 @@ import { Model, DataTypes } from "sequelize"
 import sequelize from "../utils/connection.js"
 import { hash } from "bcrypt"
 
-const salt = 12
+export const salt = 12
 class User extends Model {}
 
 User.init(
@@ -15,8 +15,7 @@ User.init(
       allowNull: false,
       unique: true,
       validate: {
-        min: 11,
-        max: 11
+        len: [11]
       }
     },
     email: {
@@ -33,17 +32,16 @@ User.init(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
-      set(value) {
-        this.setDataValue("password", hash(value, salt))
-      }
+      allowNull: false
     }
   },
   { sequelize, tableName: "users", paranoid: true }
 )
 
-// User.beforeCreate(async (user, options) => {
-//   const hashPassword = await bcrypt.hash(user.password.toString(), salt)
-//   user.password = hashPassword
-// })
+User.beforeCreate(async (user, options) => {
+  console.clear()
+  console.log(options)
+  const hashPassword = await hash(user.password.toString(), salt)
+  user.password = hashPassword
+})
 export default User

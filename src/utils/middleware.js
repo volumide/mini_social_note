@@ -22,9 +22,7 @@ export const authorize = (req, res, next) => {
 }
 
 export const decodeToken = (req) => {
-  const token = req.header.authorization
-  if (!token) return false
-  const dT = token.split(" ")
-  if (dT[0] !== "Bearer".toLowerCase()) return false
-  return jwtDecode(dT[1])
+  const auth = req.headers["authorization"]
+  const token = auth.split(" ")[1]
+  return jwtDecode(token)
 }
