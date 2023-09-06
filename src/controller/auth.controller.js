@@ -185,7 +185,8 @@ export const followers = async (req, res) => {
         user_id: id
       },
       include: {
-        model: Followers,
+        model: User,
+        as: "followers",
         attributes: ["id", "first_name", "last_name"]
       }
     })
