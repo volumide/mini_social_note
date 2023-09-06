@@ -1,7 +1,7 @@
 import { compare } from "bcrypt"
-import User from "../models/user.model"
+import User from "../models/user.model.js"
 import { SERVER_ERROR, CREATED, BAD_REQUEST, SUCCESS } from "../utils/status-codes.js"
-import { accessToken } from "../utils/middleware"
+import { accessToken } from "../utils/middleware.js"
 
 export const signup = async (req, res) => {
   try {
