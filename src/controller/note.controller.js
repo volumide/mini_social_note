@@ -3,7 +3,7 @@ import Note from "../models/note.model.js"
 import User from "../models/user.model.js"
 import { decodeToken } from "../utils/middleware.js"
 import { FORBIDDEN, NOT_FOUND, NO_CONTENT, SERVER_ERROR, SUCCESS } from "../utils/status-codes.js"
-import { favorite } from "./resuable/note.reusable.js"
+import { favorite } from "./resuable/index.js"
 
 Note.belongsTo(User, { foreignKey: "user_id", targetKey: "id", as: "owner" })
 
