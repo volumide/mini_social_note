@@ -150,6 +150,9 @@ export const getNotes = async (req, res) => {
       }
     })
   } catch (error) {
-    //
+    return res.status(SERVER_ERROR).json({
+      status: SERVER_ERROR,
+      message: "server error"
+    })
   }
 }
