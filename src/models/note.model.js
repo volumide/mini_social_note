@@ -1,6 +1,5 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "../utils/connection.js"
-import { hash } from "bcrypt"
 
 class Note extends Model {}
 

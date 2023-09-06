@@ -70,7 +70,6 @@ export const login = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   const { id } = decodeToken(req)
-
   try {
     const { password, createdAt, deletedAt, updatedAt, ...data } = req.body
 

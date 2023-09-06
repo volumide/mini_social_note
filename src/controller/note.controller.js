@@ -1,7 +1,7 @@
 import Favorite from "../models/favorite.model"
-import Note from "../models/note.model"
-import User from "../models/user.model"
-import { decodeToken } from "../utils/middleware"
+import Note from "../models/note.model.js"
+import User from "../models/user.model.js"
+import { decodeToken } from "../utils/middleware.js"
 import { NOT_FOUND, NO_CONTENT, SERVER_ERROR, SUCCESS } from "../utils/status-codes"
 
 Note.belongsTo(User, { foreignKey: "user_id", targetKey: "id", as: "owner" })
