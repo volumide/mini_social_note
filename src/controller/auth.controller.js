@@ -2,6 +2,7 @@ import { compare, hash } from "bcrypt"
 import User from "../models/user.model.js"
 import { SERVER_ERROR, CREATED, BAD_REQUEST, SUCCESS } from "../utils/status-codes.js"
 import { accessToken, decodeToken } from "../utils/middleware.js"
+import Followers from "../models/follows.model.js"
 
 export const signup = async (req, res) => {
   try {
@@ -112,3 +113,66 @@ export const updatePassword = async (req, res) => {
     })
   }
 }
+
+export const follow = async (req, res) => {
+  const { id } = decodeToken(req)
+  const findUser = await User.findByPk(req.body.user_id)
+  if (!find) {
+    return res.status(NOT_FOUND).json({
+      status: NOT_FOUND,
+      message: "user not found"
+    })
+  }
+
+  const allFollowers = parseInt(findUser.followers)
+  await User.update({
+    followers: (allFollowers + 1).toString()
+  })
+
+  await Followers.create({
+    follower_id: id,
+    user_id: req.body.user_id
+  })
+
+  return res.status(SUCCESS).json({
+    status: SUCCESS,
+    message: "success"
+  })
+}
+
+export const unfollow = async (req, res) => {
+  const { id } = decodeToken(req)
+  try {
+    const findUser = await User.findByPk(req.body.user_id)
+    if (!find) {
+      return res.status(NOT_FOUND).json({
+        status: NOT_FOUND,
+        message: "user not found"
+      })
+    }
+
+    const allFollowers = parseInt(findUser.followers)
+    await User.update({
+      followers: (allFollowers - 1).toString()
+    })
+
+    await Followers.destroy({
+      where: {
+        follower_id: id,
+        user_id: req.body.user_id
+      }
+    })
+
+    return res.status(SUCCESS).json({
+      status: SUCCESS,
+      message: "success"
+    })
+  } catch (error) {
+    return res.status(SERVER_ERROR).json({
+      status: SERVER_ERROR,
+      message: "server error"
+    })
+  }
+}
+
+export const followers = async (req, res) => {}
