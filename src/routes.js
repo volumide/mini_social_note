@@ -17,8 +17,8 @@ const routes = (app) => {
   app.delete("/note/delete/:id", authorize, deleteNote)
   app.post("/note/favorite", authorize, favoriteNote)
   app.put("/note/favorite/remove", authorize, unFavoriteNote)
-  app.post("/note/all/", authorize, getNotes)
-  app.post("/note/user/", authorize, getMyNotes)
+  app.get("/note/all/", authorize, getNotes)
+  app.get("/note/user/", authorize, getMyNotes)
 }
 
 export default routes
